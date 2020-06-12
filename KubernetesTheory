@@ -1,0 +1,89 @@
+KUBERNETES:
+
+        https://github.com/in28minutes/kubernetes-crash-course
+
+
+
+        Docker:
+
+            1) Standaridized Application Packaging:
+
+                - Same packaging for all type of applications
+
+            2) Features:
+
+                - Language Neutral;
+                - Cloud Neutral;
+                - Enables Standartization;
+
+            3) Challenges:
+
+                - 1000 Microservices
+                - 1000 Instances
+
+
+        Kubernetes:
+
+            1) Container Orchestration:
+
+                - Manage 1000's of instances 1000's of microservices Declaratively
+
+            2) Features:
+
+                - Auto Scaling
+                - Service Discovery
+                - Load Balancing
+                - Self Healing
+                - Zero Downtime Deployments
+
+            3) Cloud Neutral:
+
+                - Standaridized Platform on any infrastructure
+
+
+
+        Kubernetes Cluster:
+
+            - It is nothing but a group of Servers that are managed together.
+
+
+
+CREATING KUBERNETES CLUSTER WITH GOOGLE KUBERNETES ENGINE:
+
+    
+        - Kubernetes manages Servers and these Servers are in Cloud.
+        - So there are Virtual Servers.
+
+        - Different Cloud Providers hae different names  for these Virtual Servers.
+
+                - Amazon - EC2 - Elastic Compute Cloud
+
+                - Azure - Virtual Machines
+
+                - Google Cloud - Compute Engines 
+
+        
+        - Kubernetes uses a very Generic terminology and calls them Nodes.
+
+        - Typically you have one Master Node, but when you need High Availability, you go for Multiple Master Nodes.
+
+
+        => Cluster:
+
+            - is nothing but a combination of Nodes and Master Node.
+
+        Worker Node (run your Application):
+
+            - The Nodes that do the work 
+
+        Master Node (manages Cluster):
+
+            - The Nodes that do the Management  Worker
+
+            - These Master Nodes ensure that the Nodes are really motivated and Charged up to do the Work
+
+
+        => A Cluster contains Nodes which are managed by a Master Node.
+
+
+
