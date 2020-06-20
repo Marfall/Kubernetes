@@ -87,3 +87,282 @@ CREATING KUBERNETES CLUSTER WITH GOOGLE KUBERNETES ENGINE:
 
 
 
+KUBERNETES ENGINE DASHBOARD:
+
+
+        1) Clusters:
+
+            - here you can create clusters and manage them
+
+        2) Workloads:
+
+            - here you can manage the applications or the containers that you would want to deploy 
+
+        3) Services and Ingress:
+
+
+            - you'd want to provide access to external world to these Workloads
+              and that's where Services come into picture.
+
+            - Services give external world access to applications which are deployed into Kubernetes Clusters.
+
+        4) Configuration:
+
+            - to store your application
+
+        5) Storage:
+
+            - to provide persistent data storage access for your application.
+
+
+        - Kubernetes needs to manage the Nodes and takes a cut. 
+        
+        - It says - I need to do a lot of work to manage these Nodes. So, reserve some CPU and some Memory for the work
+          I need to do with these nodes.
+
+
+
+
+DEPLOY SPRING BOOT APPLICATION TO KUBERNETES CLUSTER:
+
+
+        - What we need to do to deploy an application to a Kubernetes Cluster:
+
+             - first step - is actually to connect to the Kubernetes Cluster;
+
+             - We can use Google Cloud Shell
+
+
+                    gcloud container clusters get-credentials outspace-cluster --zone us-central1-a --project melodic-agency-279803
+
+             - Now we an run commands against the Cluster;
+
+
+             kubectl  - short form of Kube Controller;
+
+             kubectl version  
+
+                - show version of kubernetes controller 
+
+
+             kubectl create deployment hello-world-rest-api --image=in28min/hello-world-rest-api:0.0.1.RELEASE
+
+                - this is a Docker Image for the REST API that we would want to deploy
+
+                - This would deploy the applicaion to a Kubernetes Cluster and it gives you a deployment ID.
+
+            Kubernetes Deployments:
+
+                - Project Code
+
+                - Docker Image
+
+                - Docker Repository
+
+            Now we would want to expose this deployment to the outside world:
+
+                kubectl expose deployment hello-world-rest-api --type=LoadBalancer --port=8080
+
+            gcloud config set project melodic-agency-279803 
+
+                - use Project
+
+
+
+
+KUBERNETES CONCEPTS - PODS, REPLICA SETS AND DEPLOYMENT:
+
+
+        kubectl get events
+
+                -  show events
+
+        kubectl get pods 
+
+                - show Pods, that were created and their status
+
+        kubectl get replicaset
+
+                - shows ReplicaSets
+
+        kubectl get deployment
+
+                - shows Deployment
+
+        kubectl get Service
+
+                - shows Services
+
+
+    Kubernetes uses Single Responsibility Principle:
+
+        - One Concept  - One Responsibility
+
+        - When we executed command 
+
+            kubectl create deployment 
+
+            - Kubernetes created a Deployment, a ReplicaSet and a Pod;
+
+
+        - When we executed command
+
+            kubectl expose deployment 
+
+            - Kubernetes created a Service
+
+
+
+
+UNDERSTANDING PODS IN KUBERNETES:
+
+
+        Pod:
+
+            - Is the smallest deployment unit in Kubernetes
+
+            - Tou can not have a Container in Kubernetes without a Pod.
+
+            - Your Container lives inside a Pod;
+
+
+                kubectl get pods -o wide
+
+                    - show wide information about Pod
+
+            - Each Pod has unique IP-Address
+
+            - READY 1/1 
+
+                - is number of containers that are present in that specific Pod and how many of them are ready;
+
+                => Pod actually may contain multiple containers;
+
+
+            - All the Containers which are present in a Pod share resources;
+
+            - Wuthin the same Pod the containers can talk to each other using Localhost
+
+
+                kubectl explain pods
+
+                    - It says what a Pod is,
+
+                    => A Pod in Kubernetes is a collection of containers
+
+
+            => Kubernetes Node can contain multiple Pods and each of these Pods can contain multiple Containers;
+
+
+            - These Pods can be from different applications or these Pods can be related to the same application
+
+
+                kubectl get pods
+
+                    - show highlevel detals of pods
+
+                kubectl describe pod hello-world-rest-api-67558677bc-5v9qf
+
+                    - show all information about the Pod (id)
+
+
+            Namespace:
+
+                - Is a very important concept .
+
+                - It provides Isolations for parts of the Cluster from other parts of the Cluster
+
+
+                => For example, you have your Development and QA environments running inside the same Cluster.
+                   How do you separate resources of Dev from the resources of QA?
+
+                - One of the options is to create separate namespace for QA and Dev ans associate each of the 
+                  resources with that specific namespace.
+
+
+            Labels
+
+            Annotations:
+
+                - meta information about specific pod.
+
+            Status:
+
+                - running status.
+
+
+            
+            => Pod provides a way to put your containers together. It gives them an IP address and also it provides
+               a categorization for all thee containers by associating them with Labels.
+
+
+            
+
+UNDERSTANDING REPLICA SETS IN KUBERNETES:
+
+
+        kubectl get replicasets  (rs)
+
+            - get ReplicaSet which was created for us earlier.
+
+        Why do we need ReplicaSet:
+
+            - Replica Set ensure that a specific number of pods are running at all  times;
+
+        
+        kubectl delete pods hello-world-rest-api-67558677bc-5v9qf
+        
+            - kill pod
+
+        kubectl get pods -o wide
+
+            - after that we can see that another pod is started up.
+              That pod is automatically launched up and it is running.
+
+            => Even though we killed a pod, within a minute or so, our URL ontinues to work.
+
+            - This happening because of the ReplicaSet:
+
+            - The ReplicaSet always keeps monitoring the pods and if there are lesser number of pods than what is  needed,
+              then it creates the pods.
+
+
+        - How can I tell the ReplicaSet to maintain a higher number of pods?
+
+              kubectl scale deployment hello-world-rest-api --replicas=3
+
+
+        kubectl get events --sort-by=.metadata.creationTimestamp
+
+
+            - get events sorted by creationTimestamp
+
+            
+
+
+
+
+
+
+                
+
+
+
+        
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
