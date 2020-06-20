@@ -337,8 +337,25 @@ UNDERSTANDING REPLICA SETS IN KUBERNETES:
 
             - get events sorted by creationTimestamp
 
-            
+        kubectl explain replicaset
 
+            - get information about ReplicaSet
+
+
+        => In Kubernetes, whenever somebody talks about replicaset to you, it's all about 
+           maintaining the number of pods.
+
+
+        => So, a pod is where your containers run. A Pod provides a grouping for the containers and a ReplicaSet
+           ensures that a set of pods, a specific number of pods are always running.
+
+
+
+
+UNDERSTANDING DEPLOYMENT IN KUBERNETES:
+
+
+        
 
 
 
