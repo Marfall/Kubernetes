@@ -241,7 +241,7 @@ UNDERSTANDING PODS IN KUBERNETES:
 
             - All the Containers which are present in a Pod share resources;
 
-            - Wuthin the same Pod the containers can talk to each other using Localhost
+            - Within the same Pod the containers can talk to each other using Localhost
 
 
                 kubectl explain pods
@@ -355,7 +355,299 @@ UNDERSTANDING REPLICA SETS IN KUBERNETES:
 UNDERSTANDING DEPLOYMENT IN KUBERNETES:
 
 
+        Why do we need a deployment:
+
+
+            - Let's say I have a specific version of application deployed. Let's call it V1.
+              And let's say we would want to update a new version - V2.
+
+            - Typically, what do we want when we are updating applications?
+              We would want Zero downtime.
+
+        kubectl set image deployment hello-world-rest-api hello-world-rest-api=DUMMY_IMAGE:TEST  
+
+            (first is the name of the deployment, the second - the name of the container)
+
+        - Inside the hello-world-rest-api deployment, we'd want to set the image path  for the hello-world-rest-api
+          container to a error.
+
+        - Why am setting it to an error?
+
+        - We want to see if this deployment would go down. So, what would happen if we set something to an error?
+
+        - You make an error while you deploying a new version, your application would go down.
+
+        - We can see that Image is updated. But the Image has an error. So, does application go down?
+
+        - You can see that application is still running and you can get requests from all the current instances.
+
+
+        => Even though wemade a mistake with our deployment, we see that the application is still up and running,
+           Old version is still running.
+
+
+        What's happening in the background?
+
+
+            kubectl get rs
+
+            - We can see 2 ReplicaSets, and in second - zero is ready but desired 1. And with "kubectl get pods"
+              we can see that the new one which is created has an InvalidImageName at the Status.
+
+
+        => So, what Kubernetes has discovered is that the Image Name which is associated with this specific pod 
+           in not really right.
+
+           - If you interested in the details of it, you can actually copy the Id of the Pod and say:
+
+             kubectl describe pod hello-world-rest-api-6f79646b44-stsrh 
+
+
+
+        => Deployments is very important to make sure that you are able to update new releases of applications without
+           downtime.
+
+        - The strategy which the Deployment is using, by default, is something called Rolling Updates:
+
+        - What it does:
+
+            - Let's say I have 5 instances of V1 and I want to update to V2, the Rolling Update Strategy  it updates one Pod 
+              at a time. 
+
+            - So, it launches a new Pod of V2. Once it's up and running, it reduce te number of Pods for V1.
+
+            - Next, it increases the Number of Pods for V2 becomes and so on and so forth (и так далее, и так далее),
+              until the number of Pods for V1 becomes zero. And all the traffic goes then to V2.
+
+
+
+
+REVIEW OF KUBERNETES CONCEPTS - PODS, REPLICA SETS, DEPLOYMENTS:
+
+
+    1) A POD  - it's a Wrapper for a Set of Containers;
+
+        - A Pod has an Ip-address and it has things like labels, annotations and stuff like that.
+
+
+    2) A REPLICA SET - ensures that a specific number of Pods are always running;
+
+        - Even if you kill one of the instances of the pod, ReplicaSet would observe that and it would bring up 
+          a new instance of the Pod
+
+        - In practice you'd see that a ReplicaSet is always tied with a specific Release Version.
+
+
+    3) A DEPLOYMENT ensures that a Release Upgrade a swithc from V1 to V2 happens without a hitch (помеха)
+
+        - You don't really want to have downtimes (простой) when you released new versions of applications
+          and that's where Deployment plays a key Role;
+
+        - There are variety of Deployment Strategies:
+
+            - When I'm releasing a new version of the application, I might want to actually sent 50 percent of traffic to V1
+              and 50 percent of traffic to V2 or I would want to actually to do something like a rolling update whwre I'd to first
+              create one instance of V2, test it once it's fine, I would reduce the number of instances of V1.
+              After that, I'll create a new instance of V2.
+
+
+
+UNDERSTANDING SERVICES IN KUBERNETES:
+
+
+         - Every Pod has an IP-address and the URL that we executing on the other hand, it'a automatically distributing Load
+           among all these Pods.
+
+        - In Kubernetes world a Pod is a throw-away (сбрасываемый) Unit. Your pods might go down, new pods might come up wherenever I do
+          a new release.
+
+        - Irrespective of all changes happening with the Pods, we don't want the Consumer side of things to get affected (пострадать).
+
+        - We don't want the user of the application to use a different URL.
+
+        - That's the role of a Service:
+
+            - The Role of service is to provide an always available External Interface to the applications which are running 
+              inside the Pods. A Service basically allows to receive traffic through a permanent lifetime IP address.
+
+
+        - When was the Service created?
+
+            - The Service created when we did an Expose Deployment.
+
+                kubectl expose deployment hello-world-rest-api --type=LoadBalancer --port=8080
+
+                - This is when the Service was created with an IP address and that is the IP address that is the IP address 
+                  that we are using  to access the appliation. 
+
+            - LoadBalancer can load balance between multiple Pods.
+
+            - ClusterIP Service an only be accessed from inside the Cluster.
+
+
+
+
+UNDERSTANDING KUBERNETES ARCHITECTURE:
+
+
+        MASTER NODE:
+
+        1) ETCD (Distributed Database):
+
+            - The most important component that is runnning as a part of your Master Node is 
+              something called ETCD - Distributed Database.
+
+            - All configuration changes that we are making, all the deployments that we are creating,
+              all the scaling operations that we are performing, all the details of those are stored
+              in a Distributed Database.
+
+            - Desired State is stored in a Distributed Database ETCD.
+
+
+            => All the Kubernetes resources like deployments, dervices, all the configuration that we are make is 
+               stored finally into this Distributed Database.
+
+            - It's recommended to have 3-5 replicas of this database, so the Cubernetes Custer state is not lost.
+
+
+        2) API SERVER (kube-apiserver):
+
+            - How does kubecl talk to Kubernetes Cluster? 
+
+            - How does the Google Cloud interface of the Google Cloud Control talk to the Kubernetes Cluster?
+
+
+            - The way they make their changes is through the API Server. If I try to make a change through kubectl or if 
+              I try to make a change to the Google Cloud Console, the change is submitted to this API Server and
+              processed from here.
+
+
+        3) SCHEDULER:
+
+            - The scheduler is responsing for scheduling the pods on to the nodes.
+
+            - In a Kubernetes Cluster, you'll have several nodes and whan we are creating a new pod, we'd
+              need to decide which Node the Pod has to be scheduled on to.
+
+            - The decision might be based on hoe much mempry is available on, hoe much CPU is available,
+              are there any ports conflicts, and a lot of such factors.
+
+            => The Scheduler considers all those factors and schedules the Pods on to appropriate Nodes.
+
+
+        4) CONTROLLER MANAGER:
+
+            - The Controller Manager manages the overall health of the Cluster.
+
+            - Wherever we are executing kubectl commands, we are updating the Desired State.
+
+            - The KubeCtl Manager make sure that whatever the Desired State that we have, we would want 10 instances
+              of application A , we would want 10 instances of application B, we would want five instances of Release 2.
+
+            - All those changes needs to be executed into the Cluster and the Controller Manager is responsible for that.
+
+            - It makes sure that the actiual State of Kubernetes matches the Desired State. 
+
+
+            - Important thing about Master Node is , typically, the user applications will not be scheduled
+              on Master Node.
+
+            - All user applications would be running typically in Pods inside the Worker Nodes ot jost the Node.
+
+
         
+        WORKER NODE:
+
+            1) PODS (Multiple pods running containers):
+
+                - Applications that we woud want to run
+
+            2) NODE AGENT (Kubelet):
+
+                - The job of Kubelet is to make sure that it monitors what's happening on the node and communicates it
+                  back to the Master Node.
+
+                - So, if a pod goes down, what does the Node Agent do?
+
+                    - It reports it to Controller Manager
+
+            3) NETWORKING COMPONENT (Kube-Proxy):
+
+
+                - It helps you in exposing Services around your Nodes and your Pods.
+
+
+            4) CONTAINER RUNTIME (CRI -docker, rkt, etc):
+
+                - We need to run containers inside our Pods and these need the Container Runtime.
+
+                - The most frequently used Container Runtime is Docker.
+
+        
+        IMPORTANT QUESTIONS:
+
+            1) Does a Master Node run any of the application-related containers?    
+
+                - No, the Master Node is typically having only the stuff which is related to what is needed to control
+                  your Worker Nodes.
+
+            2) Can you run only Docker Containers in Kubernetes?
+
+                - No. If your container is compatible(совместим) with OCI - Open Container Interface that's fine.
+
+            
+            3) What happens if the Master Node goes down or what happens if a specific service on a master node goes down?  
+               Will the applications go down?
+
+                - No.The applications can continue to run working even the Master Node down.
+                  When I am executing a URL to access an application the master node does not get involved at all.
+
+                - The only thing that would be involved (участвовать) in those kind of situations are just the Worker Nodes.
+                  The Nodes which are doing the work. 
+
+                => Even if the Master Node goes down or the API Server goes down, our appliations would continue to be  working.
+
+                   - We will not able to make changes to them, but the existing applications would continue to run.
+
+
+            kubectl get componentstatuses
+
+                - get component statuses of Master Node.
+
+
+
+
+UNDERSTANDING GOOGLE CLOUD REGIONS AND ZONES:
+
+
+        - Why do we need regions?
+
+            - The most important regions is Latency (задержка).
+
+                - Let's say , you have most of your user base in India. What would happen if I actually deploy the 
+                  application in a region in the US?
+                
+                - Teh would be some latency in accessing the application and that's not good.
+
+            - The second reason is Availability.
+
+                - Let's say you have your application deployed in just one of these regions and there is some national
+                  calamity that happens in that specific region. 
+                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
